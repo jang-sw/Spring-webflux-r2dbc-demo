@@ -12,5 +12,12 @@ import reactor.core.publisher.Mono;
 
 public interface AccountRepo extends R2dbcRepository<AccountEntity, Long>{
 
-
+	public Mono<AccountEntity> findByWallet(String wallet);
+	public Mono<Long> countByNickname(String nickname);
+	
+	@Query(""
+			+ "INSERT INTO tb_account(wallet, nickname, auth, wallet_agree) "
+			+ "VALUES(:#{#accountEntity.wallet},:#{#accountEntity.nickname},:#{#accountEntity.auth},:#{#accountEntity.walletAgree})")
+	public Mono<Void> saveAccount(@Param("accountEntity")AccountEntity accountEntity);
+	
 }

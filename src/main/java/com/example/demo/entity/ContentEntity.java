@@ -32,6 +32,7 @@ public class ContentEntity {
 	String content;
 
 	String type;
+	String subType;
 	
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

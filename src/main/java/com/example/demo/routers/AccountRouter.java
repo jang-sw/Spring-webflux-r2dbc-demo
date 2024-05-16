@@ -24,12 +24,12 @@ public class AccountRouter {
         return RouterFunctions. 
                 route(GET("/api/account/info").and(contentType(MediaType.ALL)).and(accept(MediaType.ALL))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
-                .andRoute(POST("/api/account/login").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                .andRoute(GET("/api/account/cntByNickname").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getCntByNickname(request), ResponseDto.class))
+                .andRoute(GET("/api/account/infoByWallet").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfoByWallet(request), ResponseDto.class))
                 .andRoute(POST("/api/account/join").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
-                .andRoute(POST("/api/account/agree").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.saveAccount(request), ResponseDto.class))
                 ;
     }
     
