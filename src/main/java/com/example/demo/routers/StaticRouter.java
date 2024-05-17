@@ -17,13 +17,15 @@ public class StaticRouter {
 
 	
 	@Bean
-    protected RouterFunction<ServerResponse> staticRouter(@Value("classpath:/robots.txt") Resource resource) {
+    protected RouterFunction<ServerResponse> staticRoutes(@Value("classpath:/robots.txt") Resource resource) {
         return RouterFunctions.route(
             GET("/robots.txt"),
             request -> ok()
                 .contentType(MediaType.TEXT_PLAIN)
                 .bodyValue(resource)
-        );
+        ).andRoute(GET("/"), request -> ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .bodyValue("Running"));
     }
 
 }

@@ -19,39 +19,39 @@ public class AccountService {
 	AccountRepo accountRepo;
 	
 	public Mono<ResponseDto> getUserInfo(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> accountDataReqMono = serverRequest.formData();
-		return accountDataReqMono.flatMap(marketDataReq -> 
-			 accountRepo.findById(Long.parseLong(marketDataReq.getFirst("accountId")))
+		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+		return formDataReqMono.flatMap(data -> 
+			 accountRepo.findById(Long.parseLong(data.getFirst("accountId")))
 				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 
 
 	public Mono<ResponseDto> getUserInfoByWallet(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> accountDataReqMono = serverRequest.formData();
-		return accountDataReqMono.flatMap(marketDataReq -> 
-			 accountRepo.findByWallet(marketDataReq.getFirst("wallet"))
+		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+		return formDataReqMono.flatMap(data -> 
+			 accountRepo.findByWallet(data.getFirst("wallet"))
 				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
 				.defaultIfEmpty(ResponseDto.builder().result(-2).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
 	public Mono<ResponseDto> getCntByNickname(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> accountDataReqMono = serverRequest.formData();
-		return accountDataReqMono.flatMap(marketDataReq -> 
-			 accountRepo.countByNickname(marketDataReq.getFirst("nickname"))
+		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+		return formDataReqMono.flatMap(data -> 
+			 accountRepo.countByNickname(data.getFirst("nickname"))
 				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
 	public Mono<ResponseDto> saveAccount(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> accountDataReqMono = serverRequest.formData();
-		return accountDataReqMono.flatMap(marketDataReq ->
+		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+		return formDataReqMono.flatMap(data ->
 			accountRepo.saveAccount(AccountEntity.builder()
-					.auth(marketDataReq.getFirst("auth"))
-					.nickname(marketDataReq.getFirst("nickname"))
-					.wallet(marketDataReq.getFirst("wallet"))
-					.walletAgree(marketDataReq.getFirst("walletAgree"))
+					.auth(data.getFirst("auth"))
+					.nickname(data.getFirst("nickname"))
+					.wallet(data.getFirst("wallet"))
+					.walletAgree(data.getFirst("walletAgree"))
 					.build())
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());

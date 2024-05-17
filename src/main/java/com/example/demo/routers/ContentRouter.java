@@ -15,24 +15,29 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.example.demo.dto.ResponseDto;
 import com.example.demo.service.AccountService;
+import com.example.demo.service.ContentService;
 
 @Configuration
 public class ContentRouter {
 
 	
 	@Bean
-    protected RouterFunction<ServerResponse> contentRoutes(AccountService accountService) {
+    protected RouterFunction<ServerResponse> contentRoutes(ContentService contentService) {
         return RouterFunctions. 
                 route(GET("/api/content/list").and(contentType(MediaType.ALL)).and(accept(MediaType.ALL))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 .andRoute(GET("/api/content/detail").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 .andRoute(POST("/api/content/create").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 .andRoute(POST("/api/content/delete").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
+                .andRoute(POST("/api/content/like").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
+                .andRoute(POST("/api/content/cancelLike").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 .andRoute(POST("/api/content/update").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 ;
     }
     
