@@ -29,10 +29,18 @@ public class ContentEntity {
 	Long contentId;
 	
 	Long accountId;
+	
+	String author;
+	String title;
 	String content;
-
 	String type;
 	String subType;
+	
+	Long views;
+	Long likes;
+	
+	Long viewed;
+	Long liked;
 	
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
