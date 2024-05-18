@@ -86,7 +86,7 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ "")
 		public Flux<ContentEntity> findContentsByAuthor(@Param("type")String type, @Param("subType")String subType, @Param("author")String author, @Param("order") String order, @Param("limit")int limit, @Param("offset")int offset);
 
-		public Mono<Long> countByTypeAndSubTypeAndAutor(String type, String subType, String author);
+		public Mono<Long> countByTypeAndSubTypeAndAuthor(String type, String subType, String author);
 		
 		@Query(""
 				+ "SELECT "

@@ -53,7 +53,7 @@ public class ContentService {
 			Integer page = Integer.parseInt(data.getFirst("page"));
 			if("author".equals(data.getFirst("select"))) {
 				return Mono.zip(contentRepo.findContentsByAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubTypeAndAutor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author")))
+						, contentRepo.countByTypeAndSubTypeAndAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
 							.maxPage(getMaxPage(tuple.getT2(),pageSize))
