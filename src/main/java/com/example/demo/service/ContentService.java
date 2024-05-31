@@ -42,6 +42,7 @@ public class ContentService {
 		return formDataReqMono.flatMap(data -> 
 			contentRepo.findContentById(Long.parseLong(data.getFirst("contentId")),Long.parseLong(data.getFirst("accountId")))
 				.flatMap(content -> Mono.just(ResponseDto.builder().result(1).data(content).build()))
+				.defaultIfEmpty(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	

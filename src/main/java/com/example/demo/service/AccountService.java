@@ -23,6 +23,7 @@ public class AccountService {
 		return formDataReqMono.flatMap(data -> 
 			 accountRepo.findById(Long.parseLong(data.getFirst("accountId")))
 				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
+				.defaultIfEmpty(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 
