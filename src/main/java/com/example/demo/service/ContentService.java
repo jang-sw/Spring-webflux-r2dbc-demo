@@ -68,6 +68,14 @@ public class ContentService {
 							.maxPage(getMaxPage(tuple.getT2(),pageSize))
 							.build())
 						.result(1).build()));
+			} else if("content".equals(data.getFirst("select"))) {
+				return Mono.zip(contentRepo.findContentsByContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+						, contentRepo.countByTypeAndSubTypeAndContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content")))
+					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
+							.contents(tuple.getT1())
+							.maxPage(getMaxPage(tuple.getT2(),pageSize))
+							.build())
+						.result(1).build()));
 			} else {
 				return Mono.zip(contentRepo.findContents(data.getFirst("type"), data.getFirst("subType"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 						, contentRepo.countByTypeAndSubType(data.getFirst("type"), data.getFirst("subType")))

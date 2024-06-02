@@ -114,6 +114,31 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 		public Mono<Long> countByTypeAndSubTypeAndTitle(String type, String subType, String title);
 
 		@Query(""
+				+ "SELECT "
+				+ 	"tc.*, "
+				+ 	"COALESCE(tl.like_count, 0) AS likes, "
+				+ 	"COALESCE(tv.view_count, 0) AS views"
+				+ "FROM "
+				+ 	"tb_content tc"
+				+ "LEFT JOIN "
+				+ 	"(SELECT content_id, COUNT(*) AS like_count "
+				+ 	"FROM tb_like "
+				+ 	"GROUP BY content_id) tl ON tc.content_id = tl.content_id"
+				+ "LEFT JOIN "
+				+ 	"(SELECT content_id, COUNT(*) AS view_count "
+				+ 	"FROM tb_view "
+				+ 	"GROUP BY content_id) tv ON tc.content_id = tv.content_id"
+				+ "WHERE "
+				+ 	"tc.type = :type AND tc.sub_type=:subType"
+				+ 	"AND tc.content like concat('%', :content, '%') "
+				+ "ORDER BY :order DESC  "
+				+ "LIMIT :limit OFFSET :offset "
+				+ "")
+		public Flux<ContentEntity> findContentsByContent(@Param("type")String type, @Param("subType")String subType, @Param("content")String content, @Param("order") String order, @Param("limit")int limit, @Param("offset")int offset);
+
+		public Mono<Long> countByTypeAndSubTypeAndContent(String type, String subType, String content);
+		
+		@Query(""
 				+ "INSERT INTO tb_content(account_id, author, title, content, type, sub_type) "
 				+ "VALUES(:#{#contentEntity.accountId},:#{#contentEntity.author},:#{#contentEntity.title},:#{#contentEntity.content},:#{#contentEntity.type},:#{#contentEntity.subType})")
 		public Mono<Void> saveContent(@Param("accountEntity") ContentEntity contentEntity);
