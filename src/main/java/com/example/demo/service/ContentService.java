@@ -34,26 +34,38 @@ public class ContentService {
         }
         return maxPages;
     }
-//	public Flux<BoxOpenLogEntity> getBoxOpenLog(Long accountId, Integer pageSize, Integer page){
-//		return boxOpenLogRepo.findByAccountId(accountId, pageSize, (page - 1) * pageSize);
-//	}
+	
+	/**
+	 * @param contentId
+	 * @param accountId 현재 유저ID (선택)
+	 * @return content
+	 * */
 	public Mono<ResponseDto> getContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			contentRepo.findContentById(Long.parseLong(data.getFirst("contentId")),Long.parseLong(data.getFirst("accountId")))
+			(data.getFirst("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(data.getFirst("accountId"))))
 				.flatMap(content -> Mono.just(ResponseDto.builder().result(1).data(content).build()))
 				.defaultIfEmpty(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
-	
+	/**
+	 * @param page
+	 * @param type 
+	 * @param subType 
+	 * @param select 
+	 * @param author (select에 따른 선택)
+	 * @param title (select에 따른 선택)
+	 * @param content (select에 따른 선택)
+	 * @return contentList
+	 * */
 	public Mono<ResponseDto> getContentList(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> {
-			Integer pageSize = Integer.parseInt(data.getFirst("pageSize"));
+			Integer pageSize = 20;
 			Integer page = Integer.parseInt(data.getFirst("page"));
 			if("author".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+				return Mono.zip(contentRepo.findContentsByAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 						, contentRepo.countByTypeAndSubTypeAndAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
@@ -61,7 +73,7 @@ public class ContentService {
 							.build())
 						.result(1).build()));
 			} else if("title".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+				return Mono.zip(contentRepo.findContentsByTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 						, contentRepo.countByTypeAndSubTypeAndTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
@@ -69,7 +81,7 @@ public class ContentService {
 							.build())
 						.result(1).build()));
 			} else if("content".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+				return Mono.zip(contentRepo.findContentsByContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 						, contentRepo.countByTypeAndSubTypeAndContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
@@ -77,7 +89,7 @@ public class ContentService {
 							.build())
 						.result(1).build()));
 			} else {
-				return Mono.zip(contentRepo.findContents(data.getFirst("type"), data.getFirst("subType"), data.getFirst("order"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+				return Mono.zip(contentRepo.findContents(data.getFirst("type"), data.getFirst("subType"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 						, contentRepo.countByTypeAndSubType(data.getFirst("type"), data.getFirst("subType")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
@@ -88,6 +100,9 @@ public class ContentService {
 		}).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
+	/**
+	 * @param contentId
+	 * */
 	public Mono<ResponseDto> deleteContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -95,6 +110,11 @@ public class ContentService {
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
+	
+	/**
+	 * @param accountId
+	 * @param contentId
+	 * */
 	public Mono<ResponseDto> cancelLike(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -102,6 +122,10 @@ public class ContentService {
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
+	/**
+	 * @param accountId
+	 * @param contentId
+	 * */
 	public Mono<ResponseDto> like(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -109,6 +133,14 @@ public class ContentService {
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
+	/**
+	 * @param author
+	 * @param accountId
+	 * @param title
+	 * @param content
+	 * @param type
+	 * @param subType
+	 * */
 	public Mono<ResponseDto> saveContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data ->
@@ -123,7 +155,11 @@ public class ContentService {
 			.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
-
+	/**
+	 * @param title
+	 * @param content
+	 * @param contentId
+	 * */
 	public Mono<ResponseDto> updateContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 

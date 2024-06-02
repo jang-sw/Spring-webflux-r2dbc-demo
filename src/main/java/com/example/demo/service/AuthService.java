@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
+import com.example.demo.config.Constant;
 import com.example.demo.util.AESUtil;
 
 import io.jsonwebtoken.Jwts;
@@ -18,28 +19,29 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class AuthService {
 
-	@Value("${secret.key}")
-	String secret;
-	
 	@Autowired
 	AESUtil aesUtil;
 	
-	
-	
 	public String getToken(ServerRequest serverRequest) {
 		String subject = UUID.randomUUID() + "-" + serverRequest.hashCode();
-		Map< String, Object> au = new HashMap<>();
+		Map< String, Object> jti = new HashMap<>();
 		try {
-			au.put("au", aesUtil.encrypt(subject + "::Ahc28cn"));
+			jti.put("jti", aesUtil.encrypt(subject + "::Ahc28Cn"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		return "Bearer " + Jwts.builder()
-			.setClaims(au)
+		System.out.println("Bearer " + Jwts.builder()
+			.setClaims(jti)
 	        .setSubject(subject)
 	        .setExpiration(new Date(System.currentTimeMillis() + 1800000))
-	        .signWith(SignatureAlgorithm.HS512, secret)
+	        .signWith(SignatureAlgorithm.HS512, Constant.SECRET_KEY)
+	        .compact());
+		return "Bearer " + Jwts.builder()
+			.setClaims(jti)
+	        .setSubject(subject)
+	        .setExpiration(new Date(System.currentTimeMillis() + 1800000))
+	        .signWith(SignatureAlgorithm.HS512, Constant.SECRET_KEY)
 	        .compact();
 	}
 	 

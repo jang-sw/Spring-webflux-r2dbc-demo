@@ -27,6 +27,10 @@ public class CommentService {
 	@Autowired
 	CommentRepo commentRepo;
 	
+	/**
+	 * @param contentId
+	 * @return comments
+	 * */
 	public Mono<ResponseDto> getComments(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -36,15 +40,22 @@ public class CommentService {
 				.flatMap(comments -> Mono.just(ResponseDto.builder().result(1).data(comments).build()))
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
-	
+	/**
+	 * @param commentId
+	 * */
 	public Mono<ResponseDto> deleteComment(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			commentRepo.deleteById(Long.parseLong(data.getFirst("contentId")))
+			commentRepo.deleteById(Long.parseLong(data.getFirst("commentId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
-	
+	/**
+	 * @param accountId
+	 * @param contentId
+	 * @param nickname
+	 * @param comment
+	 * */
 	public Mono<ResponseDto> saveComment(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data ->

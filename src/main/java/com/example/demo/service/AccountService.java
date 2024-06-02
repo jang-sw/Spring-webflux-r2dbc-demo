@@ -18,6 +18,10 @@ public class AccountService {
 	@Autowired
 	AccountRepo accountRepo;
 	
+	/**
+	 * @param accountId
+	 * @return account
+	 * */
 	public Mono<ResponseDto> getUserInfo(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -27,7 +31,10 @@ public class AccountService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 
-
+	/**
+	 * @param wallet
+	 * @return account
+	 * */
 	public Mono<ResponseDto> getUserInfoByWallet(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -37,6 +44,10 @@ public class AccountService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
+	/**
+	 * @param nickname
+	 * @return count
+	 * */
 	public Mono<ResponseDto> getCntByNickname(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
@@ -44,7 +55,12 @@ public class AccountService {
 				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
-	
+	/**
+	 * @param auth
+	 * @param nickname
+	 * @param wallet
+	 * @param walletAgree
+	 * */
 	public Mono<ResponseDto> saveAccount(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data ->
