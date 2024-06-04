@@ -4,4 +4,5 @@ A webflux demo backend application designed with the web3 community in mind
 
 web3コミュニティを念頭に置いて制作したwebfluxデモbackendアプリケーション
 
-![image](https://github.com/jang-sw/Spring-webflux-r2dbc-demo/assets/113086375/855931b1-675d-4b1d-9f32-778b6df465ce)
+![image](https://github.com/jang-sw/Spring-webflux-r2dbc-demo/assets/113086375/ebd05845-3a61-45d8-931c-ee136afc2c76)
+
