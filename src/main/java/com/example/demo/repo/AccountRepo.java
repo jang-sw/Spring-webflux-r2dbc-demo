@@ -20,4 +20,10 @@ public interface AccountRepo extends R2dbcRepository<AccountEntity, Long>{
 			+ "VALUES(:#{#accountEntity.wallet},:#{#accountEntity.nickname},:#{#accountEntity.auth},:#{#accountEntity.walletAgree})")
 	public Mono<Void> saveAccount(@Param("accountEntity")AccountEntity accountEntity);
 	
+	@Query(""
+			+ "UPDATE tb_account "
+			+ "SET main=:main "
+			+ "WHERE accountId=:accountId ")
+	public Mono<Void> updateMain(@Param("accountId")Long accountId, @Param("main")String main);
+	
 }

@@ -73,4 +73,15 @@ public class AccountService {
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
+	/**
+	 * @param accountId
+	 * @param main
+	 * */
+	public Mono<ResponseDto> updateMain(ServerRequest serverRequest) {
+		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+		return formDataReqMono.flatMap(data ->
+			accountRepo.updateMain(Long.parseLong(data.getFirst("accountId")), data.getFirst("main"))
+				.thenReturn(ResponseDto.builder().result(1).build())
+		).onErrorReturn(ResponseDto.builder().result(-1).build());
+	}
 }

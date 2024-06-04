@@ -30,6 +30,8 @@ public class AccountRouter {
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfoByWallet(request), ResponseDto.class))
                 .andRoute(POST("/api/account/join").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.saveAccount(request), ResponseDto.class))
+                .andRoute(POST("/api/account/updateMain").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.updateMain(request), ResponseDto.class))
                 ;
     }
     

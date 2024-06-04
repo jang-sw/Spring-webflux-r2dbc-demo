@@ -31,6 +31,7 @@ public class AccountEntity {
 	String wallet;
 	String nickname;
 
+	String main;
 	String auth;
 	
 	String walletAgree;
