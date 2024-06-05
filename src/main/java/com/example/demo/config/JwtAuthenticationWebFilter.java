@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
-import com.example.demo.util.AESUtil;
+import com.example.demo.util.CryptoUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -42,8 +42,8 @@ public class JwtAuthenticationWebFilter extends AuthenticationWebFilter {
                     .parseClaimsJws(authToken)
                     .getBody();
                 String id = claims.getSubject();
-                AESUtil aesUtil = new AESUtil();              
-                if (id != null && claims.get("jti") != null && aesUtil.decrypt((String) claims.get("jti")).equals(id+"::Ahc28Cn")) {
+                CryptoUtil cryptoUtil = new CryptoUtil();              
+                if (id != null && claims.get("jti") != null && cryptoUtil.AESDecrypt((String) claims.get("jti")).equals(id+"::Ahc28Cn")) {
                 	UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(id, null, new ArrayList<>());
 					SecurityContext securityContext = new SecurityContextImpl(auth);
 					return chain.filter(exchange)

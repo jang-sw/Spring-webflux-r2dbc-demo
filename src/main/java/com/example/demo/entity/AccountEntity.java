@@ -30,7 +30,8 @@ public class AccountEntity {
 	
 	String wallet;
 	String nickname;
-
+	String password;
+	
 	String main;
 	String auth;
 	

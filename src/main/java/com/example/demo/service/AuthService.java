@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 import com.example.demo.config.Constant;
-import com.example.demo.util.AESUtil;
+import com.example.demo.util.CryptoUtil;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,23 +20,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class AuthService {
 
 	@Autowired
-	AESUtil aesUtil;
+	CryptoUtil cryptoUtil;
 	
 	public String getToken(ServerRequest serverRequest) {
 		String subject = UUID.randomUUID() + "-" + serverRequest.hashCode();
 		Map< String, Object> jti = new HashMap<>();
 		try {
-			jti.put("jti", aesUtil.encrypt(subject + "::Ahc28Cn"));
+			jti.put("jti", cryptoUtil.AESEncrypt(subject + "::Ahc28Cn"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		System.out.println("Bearer " + Jwts.builder()
-			.setClaims(jti)
-	        .setSubject(subject)
-	        .setExpiration(new Date(System.currentTimeMillis() + 1800000))
-	        .signWith(SignatureAlgorithm.HS512, Constant.SECRET_KEY)
-	        .compact());
 		return "Bearer " + Jwts.builder()
 			.setClaims(jti)
 	        .setSubject(subject)

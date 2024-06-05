@@ -12,7 +12,9 @@ import reactor.core.publisher.Mono;
 
 public interface AccountRepo extends R2dbcRepository<AccountEntity, Long>{
 
-	public Mono<AccountEntity> findByWallet(String wallet);
+	@Query("SELECT nickname FROM tb_account WHERE wallet=:wallet")
+	public Mono<String> findNicknameByWallet(@Param("wallet")String wallet);
+	public Mono<AccountEntity> findByWalletAndPassword(String wallet, String password);
 	public Mono<Long> countByNickname(String nickname);
 	
 	@Query(""

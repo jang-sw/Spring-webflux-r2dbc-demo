@@ -31,6 +31,7 @@ public class SecurityConfig {
         	.httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
         	.headers(headers -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.mode(Mode.SAMEORIGIN)))
             .authorizeExchange(auth -> auth
+            		.pathMatchers("/openApi/**").permitAll()
                     .pathMatchers("/api/**").authenticated()
                     .anyExchange().permitAll()
             )
