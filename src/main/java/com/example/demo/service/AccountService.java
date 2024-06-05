@@ -8,16 +8,20 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import com.example.demo.config.Constant;
 import com.example.demo.dto.ResponseDto;
 import com.example.demo.entity.AccountEntity;
 import com.example.demo.repo.AccountRepo;
 import com.example.demo.util.CryptoUtil;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import reactor.core.publisher.Mono;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
+import java.util.Date;
 import java.util.UUID;
 @Service
 public class AccountService {
@@ -68,6 +72,32 @@ public class AccountService {
 					.header("Authorization", cryptoUtil.getToken(UUID.randomUUID() + "_"+ account.getAccountId() + "_" + serverRequest.hashCode()))
 					.body(ResponseDto.builder().result(1).data(account).build(), ResponseDto.class)
 				));
+	}
+	
+	public Mono<ServerResponse> refresh(ServerRequest serverRequest) {
+		try {
+			String authToken = serverRequest.headers().header("Authorization").get(0).substring(7);
+			String accountId = serverRequest.headers().header("accountId").get(0);
+			Claims claims = Jwts.parser()
+	                 .setSigningKey(Constant.SECRET_KEY)
+	                 .parseClaimsJws(authToken)
+	                 .getBody();
+	        String id = claims.getSubject();
+	        String d = cryptoUtil.AESDecrypt((String) claims.get("d"));
+	        if(id != null && accountId.equals(d.split("_")[1]) && ((new Date().getTime() - claims.getExpiration().getTime()) / 60000) <= 5) {
+	        	return ok()
+					.contentType(MediaType.APPLICATION_JSON)
+					.header("Authorization", cryptoUtil.getToken(UUID.randomUUID() + "_"+ accountId + "_" + serverRequest.hashCode()))
+					.body(ResponseDto.builder().result(1).data(accountId).build(), ResponseDto.class);
+	     
+	        }
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+        return ok()
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(ResponseDto.builder().result(-2).build(), ResponseDto.class);
+
 	}
 	/**
 	 * @param nickname
