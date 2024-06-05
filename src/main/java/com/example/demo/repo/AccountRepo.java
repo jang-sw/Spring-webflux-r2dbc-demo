@@ -23,7 +23,7 @@ public interface AccountRepo extends R2dbcRepository<AccountEntity, Long>{
 	@Query(""
 			+ "UPDATE tb_account "
 			+ "SET main=:main "
-			+ "WHERE accountId=:accountId ")
+			+ "WHERE account_id=:accountId ")
 	public Mono<Void> updateMain(@Param("accountId")Long accountId, @Param("main")String main);
 	
 }

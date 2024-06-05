@@ -163,10 +163,10 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 		@Query(""
 				+ "INSERT INTO tb_content(account_id, author, title, content, type, sub_type) "
 				+ "VALUES(:#{#contentEntity.accountId},:#{#contentEntity.author},:#{#contentEntity.title},:#{#contentEntity.content},:#{#contentEntity.type},:#{#contentEntity.subType})")
-		public Mono<Void> saveContent(@Param("accountEntity") ContentEntity contentEntity);
+		public Mono<Void> saveContent(@Param("contentEntity") ContentEntity contentEntity);
 		
 		@Query(""
-				+ "UPDATE INTO tb_content "
+				+ "UPDATE tb_content "
 				+ "SET title=:title "
 				+ ", content=:content "
 				+ ", updated=now() "

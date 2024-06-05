@@ -44,8 +44,10 @@ public class ContentService {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
 			(data.getFirst("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(data.getFirst("accountId"))))
-				.flatMap(content -> Mono.just(ResponseDto.builder().result(1).data(content).build()))
-				.defaultIfEmpty(ResponseDto.builder().result(1).build())
+				.flatMap(content -> data.getFirst("accountId") == null ? 
+					Mono.just(ResponseDto.builder().result(1).data(content).build()) 
+					: viewRepo.save(Long.parseLong(data.getFirst("accountId")),Long.parseLong(data.getFirst("contentId"))).thenReturn(ResponseDto.builder().result(1).data(content).build())
+				).defaultIfEmpty(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
