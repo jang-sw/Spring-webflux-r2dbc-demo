@@ -46,7 +46,7 @@ public class CommentService {
 	public Mono<ResponseDto> deleteComment(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			commentRepo.deleteById(Long.parseLong(data.getFirst("commentId")))
+			commentRepo.delete(Long.parseLong(serverRequest.headers().firstHeader("accountId")), Long.parseLong(data.getFirst("commentId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
@@ -60,7 +60,7 @@ public class CommentService {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data ->
 		commentRepo.saveComment(CommentEntity.builder()
-				.accountId(Long.parseLong(data.getFirst("accountId")))
+				.accountId(Long.parseLong(serverRequest.headers().firstHeader("accountId")))
 				.contentId(Long.parseLong(data.getFirst("contentId")))
 				.nickname(data.getFirst("nickname"))
 				.comment(data.getFirst("comment"))

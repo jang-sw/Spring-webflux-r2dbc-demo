@@ -19,4 +19,8 @@ public interface CommentRepo extends R2dbcRepository<CommentEntity, Long>{
 			+ "VALUES(:#{#commentEntity.nickname},:#{#commentEntity.accountId},:#{#commentEntity.contentId},:#{#commentEntity.comment})")
 	public Mono<Void> saveComment(@Param("commentEntity")CommentEntity commentEntity);
 	
+	@Query(""
+			+ "DELETE FROM tb_comment WHERE account_id=:accountId AND comment_id=:commentId ")
+	public Mono<Void> delete(@Param("accountId") Long accountId, @Param("commentId")Long commentId);
+	
 }

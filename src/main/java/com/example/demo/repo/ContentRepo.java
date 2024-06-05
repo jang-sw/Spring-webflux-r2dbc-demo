@@ -170,6 +170,11 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ "SET title=:title "
 				+ ", content=:content "
 				+ ", updated=now() "
-				+ "WHERE content_id=:contentId ")
-		public Mono<Void> updateContent(@Param("title") String title, @Param("content") String content, @Param("contentId") Long contentId);
+				+ "WHERE content_id=:contentId "
+				+ "AND account_id=:accountId ")
+		public Mono<Void> updateContent(@Param("title") String title, @Param("content") String content, @Param("contentId") Long contentId, @Param("accountId") Long accountId);
+
+		@Query(""
+				+ "DELETE FROM tb_content WHERE account_id=:accountId AND content_id=:contentId")
+		public Mono<Void> delete(@Param("accountId")Long accountId, @Param("contentId")Long contentId);
 }

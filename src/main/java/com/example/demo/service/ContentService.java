@@ -43,10 +43,10 @@ public class ContentService {
 	public Mono<ResponseDto> getContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			(data.getFirst("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(data.getFirst("accountId"))))
-				.flatMap(content -> data.getFirst("accountId") == null ? 
+			(data.getFirst("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(serverRequest.headers().firstHeader("accountId"))))
+				.flatMap(content -> serverRequest.headers().firstHeader("accountId") == null ? 
 					Mono.just(ResponseDto.builder().result(1).data(content).build()) 
-					: viewRepo.save(Long.parseLong(data.getFirst("accountId")),Long.parseLong(data.getFirst("contentId"))).thenReturn(ResponseDto.builder().result(1).data(content).build())
+					: viewRepo.save(Long.parseLong(serverRequest.headers().firstHeader("accountId")),Long.parseLong(data.getFirst("contentId"))).thenReturn(ResponseDto.builder().result(1).data(content).build())
 				).defaultIfEmpty(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
@@ -108,7 +108,7 @@ public class ContentService {
 	public Mono<ResponseDto> deleteContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			contentRepo.deleteById(Long.parseLong(data.getFirst("contentId")))
+			contentRepo.delete( Long.parseLong(serverRequest.headers().firstHeader("accountId")), Long.parseLong(data.getFirst("contentId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
@@ -120,7 +120,7 @@ public class ContentService {
 	public Mono<ResponseDto> cancelLike(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			likeRepo.deleteById(Long.parseLong(data.getFirst("accountId")), Long.parseLong(data.getFirst("contentId")))
+			likeRepo.deleteById(Long.parseLong(serverRequest.headers().firstHeader("accountId")), Long.parseLong(data.getFirst("contentId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
@@ -131,7 +131,7 @@ public class ContentService {
 	public Mono<ResponseDto> like(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			likeRepo.save(Long.parseLong(data.getFirst("accountId")), Long.parseLong(data.getFirst("contentId")))
+			likeRepo.save(Long.parseLong(serverRequest.headers().firstHeader("accountId")), Long.parseLong(data.getFirst("contentId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
@@ -148,7 +148,7 @@ public class ContentService {
 		return formDataReqMono.flatMap(data ->
 			contentRepo.saveContent(ContentEntity.builder()
 				.author(data.getFirst("author"))
-				.accountId(Long.parseLong(data.getFirst("accountId")))
+				.accountId(Long.parseLong(serverRequest.headers().firstHeader("accountId")))
 				.title(data.getFirst("title"))
 				.content(data.getFirst("content"))
 				.type(data.getFirst("type"))
@@ -165,7 +165,7 @@ public class ContentService {
 	public Mono<ResponseDto> updateContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			contentRepo.updateContent(data.getFirst("title") ,data.getFirst("content"), Long.parseLong(data.getFirst("contentId")))
+			contentRepo.updateContent(data.getFirst("title") ,data.getFirst("content"), Long.parseLong(data.getFirst("contentId")), Long.parseLong(serverRequest.headers().firstHeader("accountId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}

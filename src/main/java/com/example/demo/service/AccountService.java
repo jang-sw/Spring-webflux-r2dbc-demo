@@ -76,8 +76,8 @@ public class AccountService {
 	
 	public Mono<ServerResponse> refresh(ServerRequest serverRequest) {
 		try {
-			String authToken = serverRequest.headers().header("Authorization").get(0).substring(7);
-			String accountId = serverRequest.headers().header("accountId").get(0);
+			String authToken = serverRequest.headers().firstHeader("Authorization").substring(7);
+			String accountId = serverRequest.headers().firstHeader("accountId");
 			Claims claims = Jwts.parser()
 	                 .setSigningKey(Constant.SECRET_KEY)
 	                 .parseClaimsJws(authToken)
@@ -131,13 +131,12 @@ public class AccountService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
-	 * @param accountId
 	 * @param main
 	 * */
 	public Mono<ResponseDto> updateMain(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data ->
-			accountRepo.updateMain(Long.parseLong(data.getFirst("accountId")), data.getFirst("main"))
+			accountRepo.updateMain(Long.parseLong(serverRequest.headers().firstHeader("accountId")), data.getFirst("main"))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
