@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
+import com.example.demo.service.AccountService;
 import com.example.demo.util.CryptoUtil;
 
 import io.jsonwebtoken.Claims;
@@ -27,13 +28,15 @@ import reactor.core.publisher.Mono;
 public class JwtAuthenticationWebFilter extends AuthenticationWebFilter {
 
 	
+
+
 	public JwtAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
 		super(authenticationManager);
 	}
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+    	String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String authToken = authHeader.substring(7);
             try {
@@ -42,13 +45,17 @@ public class JwtAuthenticationWebFilter extends AuthenticationWebFilter {
                     .parseClaimsJws(authToken)
                     .getBody();
                 String id = claims.getSubject();
+               
                 CryptoUtil cryptoUtil = new CryptoUtil();              
-                if (id != null && claims.get("jti") != null && cryptoUtil.AESDecrypt((String) claims.get("jti")).equals(id+"::Ahc28Cn")) {
+                if (id != null && claims.get("d") != null 
+                		&& exchange.getRequest().getHeaders().get("accountId") != null 
+                		&& exchange.getRequest().getHeaders().get("accountId").size() != 0 ) {
                 	UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(id, null, new ArrayList<>());
 					SecurityContext securityContext = new SecurityContextImpl(auth);
-					return chain.filter(exchange)
-					     .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
-
+					String d = cryptoUtil.AESDecrypt((String) claims.get("d"));
+					String accountId = d.split("_")[1];
+					return accountId.equals(exchange.getRequest().getHeaders().get("accountId").get(0)) ? chain.filter(exchange)
+					     .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext))) :  Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token"));
                 }
             } catch (Exception e) {
             	return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token", e));

@@ -22,16 +22,14 @@ public class AccountRouter {
 	@Bean
     protected RouterFunction<ServerResponse> accountRoutes(AccountService accountService) {
         return RouterFunctions. 
-                route(GET("/api/account/info").and(contentType(MediaType.ALL)).and(accept(MediaType.ALL))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getUserInfo(request), ResponseDto.class))
-                .andRoute(POST("/api/account/updateMain").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+                route(POST("/api/account/updateMain").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.updateMain(request), ResponseDto.class))
                 .andRoute(GET("/openApi/account/cntByNickname").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getCntByNickname(request), ResponseDto.class))
                 .andRoute(GET("/openApi/account/findNicknameByWallet").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.getNicknameByWallet(request), ResponseDto.class))
                 .andRoute(GET("/openApi/account/login").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.login(request), ResponseDto.class))
+                        , request -> accountService.login(request))
                 .andRoute(POST("/openApi/account/join").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.saveAccount(request), ResponseDto.class))
                 

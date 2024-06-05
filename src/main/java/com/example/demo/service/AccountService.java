@@ -2,9 +2,11 @@ package com.example.demo.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.example.demo.dto.ResponseDto;
 import com.example.demo.entity.AccountEntity;
@@ -15,6 +17,8 @@ import reactor.core.publisher.Mono;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+
+import java.util.UUID;
 @Service
 public class AccountService {
 
@@ -22,46 +26,49 @@ public class AccountService {
 	AccountRepo accountRepo;
 	@Autowired
 	CryptoUtil cryptoUtil;
-	/**
-	 * @param accountId
-	 * @return account
-	 * */
-	public Mono<ResponseDto> getUserInfo(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> 
-			 accountRepo.findById(Long.parseLong(data.getFirst("accountId")))
-				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
-				.defaultIfEmpty(ResponseDto.builder().result(1).build())
-		).onErrorReturn(ResponseDto.builder().result(-1).build());
-	}
+	
 
 	/**
 	 * @param wallet
-	 * @return account
+	 * @return nickname
 	 * */
 	public Mono<ResponseDto> getNicknameByWallet(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			 accountRepo.findNicknameByWallet(data.getFirst("wallet"))
+			 accountRepo.findNicknameByWallet(data.getFirst("wallet").toLowerCase())
 				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
 				.defaultIfEmpty(ResponseDto.builder().result(-2).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	
+//	/**
+//	 * @param wallet
+//	 * @param password
+//	 * @return account
+//	 * */
+//	public Mono<ResponseDto> login(ServerRequest serverRequest) {
+//		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+//		return formDataReqMono.flatMap(data -> 
+//			 accountRepo.findByWalletAndPassword(data.getFirst("wallet").toLowerCase(), cryptoUtil.encodeSHA512(data.getFirst("password")))
+//				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
+//				.defaultIfEmpty(ResponseDto.builder().result(-2).build())
+//		).onErrorReturn(ResponseDto.builder().result(-1).build());
+//	}
 	/**
 	 * @param wallet
 	 * @param password
 	 * @return account
 	 * */
-	public Mono<ResponseDto> login(ServerRequest serverRequest) {
+	public Mono<ServerResponse> login(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			 accountRepo.findByWalletAndPassword(data.getFirst("wallet"), cryptoUtil.encodeSHA512(data.getFirst("password")))
-				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
-				.defaultIfEmpty(ResponseDto.builder().result(-2).build())
-		).onErrorReturn(ResponseDto.builder().result(-1).build());
+			 accountRepo.findByWalletAndPassword(data.getFirst("wallet").toLowerCase(), cryptoUtil.encodeSHA512(data.getFirst("password")))
+				.flatMap(account -> ok()
+					.contentType(MediaType.APPLICATION_JSON)
+					.header("Authorization", cryptoUtil.getToken(UUID.randomUUID() + "_"+ account.getAccountId() + "_" + serverRequest.hashCode()))
+					.body(ResponseDto.builder().result(1).data(account).build(), ResponseDto.class)
+				));
 	}
-	
 	/**
 	 * @param nickname
 	 * @return count
@@ -87,7 +94,7 @@ public class AccountService {
 					.password(cryptoUtil.encodeSHA512(data.getFirst("password")))
 					.auth(data.getFirst("auth"))
 					.nickname(data.getFirst("nickname"))
-					.wallet(data.getFirst("wallet"))
+					.wallet(data.getFirst("wallet").toLowerCase())
 					.walletAgree(data.getFirst("walletAgree"))
 					.build())
 				.thenReturn(ResponseDto.builder().result(1).build())
