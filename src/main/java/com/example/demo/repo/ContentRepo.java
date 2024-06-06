@@ -1,5 +1,7 @@
 package com.example.demo.repo;
 
+import java.util.List;
+
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
@@ -60,6 +62,13 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ "WHERE tc.content_id = :contentId "
 				+ "")
 		public Mono<ContentEntity> findContentById(@Param("contentId")Long contentId);
+		
+		@Query(""
+				+ "SELECT tc.* "
+				+ "FROM tb_content tc "
+				+ "WHERE content_id = :contentId "
+				+ "AND type IN (:types) ")
+		public Mono<ContentEntity> findOpenContentById(@Param("contentId")Long contentId, @Param("types")List<String> types);
 		
 		@Query(""
 				+ "SELECT "

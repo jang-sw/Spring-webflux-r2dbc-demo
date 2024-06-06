@@ -23,7 +23,7 @@ public class CommentRouter {
 	@Bean
     protected RouterFunction<ServerResponse> commentRoutes(CommentService commentService) {
         return RouterFunctions. 
-                route(GET("/api/comment/list").and(contentType(MediaType.ALL)).and(accept(MediaType.ALL))
+                route(GET("/openApi/comment/list").and(contentType(MediaType.ALL)).and(accept(MediaType.ALL))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(commentService.getComments(request), ResponseDto.class))
                  .andRoute(POST("/api/comment/save").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(commentService.saveComment(request), ResponseDto.class))

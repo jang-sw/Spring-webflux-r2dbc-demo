@@ -43,14 +43,26 @@ public class ContentService {
 	public Mono<ResponseDto> getContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			(data.getFirst("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(serverRequest.headers().firstHeader("accountId"))))
+			(serverRequest.headers().firstHeader("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(serverRequest.headers().firstHeader("accountId"))))
 				.flatMap(content -> serverRequest.headers().firstHeader("accountId") == null ? 
 					Mono.just(ResponseDto.builder().result(1).data(content).build()) 
 					: viewRepo.save(Long.parseLong(serverRequest.headers().firstHeader("accountId")),Long.parseLong(data.getFirst("contentId"))).thenReturn(ResponseDto.builder().result(1).data(content).build())
 				).defaultIfEmpty(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
-	
+	/**
+	 * @param contentId
+	 * @param accountId 현재 유저ID (선택)
+	 * @return content
+	 * */
+	public Mono<ResponseDto> getOpenContent(ServerRequest serverRequest) {
+		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
+		return formDataReqMono.flatMap(data -> {
+			return contentRepo.findById(Long.parseLong(data.getFirst("contentId")))
+					.flatMap(content -> Mono.just(ResponseDto.builder().result(1).data(content).build()) 
+					).defaultIfEmpty(ResponseDto.builder().result(1).build());
+		}).onErrorReturn(ResponseDto.builder().result(-1).build());
+	}
 	/**
 	 * @param page
 	 * @param type 
