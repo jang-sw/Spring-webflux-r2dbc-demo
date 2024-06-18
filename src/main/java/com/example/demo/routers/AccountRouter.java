@@ -31,7 +31,7 @@ public class AccountRouter {
                 .andRoute(GET("/openApi/account/login").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> accountService.login(request))
                 .andRoute(GET("/openApi/account/refresh").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> accountService.refresh(request))
+                        , request -> accountService.refresh(request)) 
                 .andRoute(POST("/openApi/account/join").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(accountService.saveAccount(request), ResponseDto.class))
                 

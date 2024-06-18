@@ -122,7 +122,7 @@ public class AccountService {
 		return formDataReqMono.flatMap(data ->
 			accountRepo.saveAccount(AccountEntity.builder()
 					.password(cryptoUtil.encodeSHA512(data.getFirst("password")))
-					.auth(data.getFirst("auth"))
+					.auth("user")
 					.nickname(data.getFirst("nickname"))
 					.wallet(data.getFirst("wallet").toLowerCase())
 					.walletAgree(data.getFirst("walletAgree"))

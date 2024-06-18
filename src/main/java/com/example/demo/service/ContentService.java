@@ -76,7 +76,7 @@ public class ContentService {
 	public Mono<ResponseDto> getContentList(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> {
-			Integer pageSize = 20;
+			Integer pageSize = 10;
 			Integer page = Integer.parseInt(data.getFirst("page"));
 			if("author".equals(data.getFirst("select"))) {
 				return Mono.zip(contentRepo.findContentsByAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())

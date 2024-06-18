@@ -9,6 +9,8 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter.Mode;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import reactor.core.publisher.Mono;
 
@@ -25,7 +27,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
         	.csrf(ServerHttpSecurity.CsrfSpec::disable)
-        	.cors(ServerHttpSecurity.CorsSpec::disable)
+        	.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         	.formLogin(ServerHttpSecurity.FormLoginSpec::disable)
         	.logout(ServerHttpSecurity.LogoutSpec::disable)
         	.httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
@@ -37,5 +39,16 @@ public class SecurityConfig {
             )
             .addFilterAt(new JwtAuthenticationWebFilter(reactiveAuthenticationManager()), SecurityWebFiltersOrder.AUTHENTICATION)
             .build();
+    }
+	
+	private UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

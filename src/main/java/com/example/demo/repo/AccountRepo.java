@@ -18,8 +18,8 @@ public interface AccountRepo extends R2dbcRepository<AccountEntity, Long>{
 	public Mono<Long> countByNickname(String nickname);
 	
 	@Query(""
-			+ "INSERT INTO tb_account(wallet, nickname, auth, wallet_agree) "
-			+ "VALUES(:#{#accountEntity.wallet},:#{#accountEntity.nickname},:#{#accountEntity.auth},:#{#accountEntity.walletAgree})")
+			+ "INSERT INTO tb_account(wallet, nickname, auth, wallet_agree, password) "
+			+ "VALUES(:#{#accountEntity.wallet},:#{#accountEntity.nickname},:#{#accountEntity.auth},:#{#accountEntity.walletAgree},:#{#accountEntity.password})")
 	public Mono<Void> saveAccount(@Param("accountEntity")AccountEntity accountEntity);
 	
 	@Query(""
