@@ -14,8 +14,14 @@ public interface AccountRepo extends R2dbcRepository<AccountEntity, Long>{
 
 	@Query("SELECT nickname FROM tb_account WHERE wallet=:wallet")
 	public Mono<String> findNicknameByWallet(@Param("wallet")String wallet);
-	public Mono<AccountEntity> findByWalletAndPassword(String wallet, String password);
+	
+	@Query("SELECT account_id, auth, main, nickname FROM tb_account WHERE wallet=:wallet AND password=:password")
+	public Mono<AccountEntity> findByWalletAndPassword(@Param("wallet")String wallet, @Param("password")String password);
 	public Mono<Long> countByNickname(String nickname);
+	
+	public Mono<Long> countByAccountIdAndAuthAndNicknameAndWallet(Long accountId, String auth, String nickname, String wallet);
+	
+	public Mono<Long> countByWallet(String wallet);
 	
 	@Query(""
 			+ "INSERT INTO tb_account(wallet, nickname, auth, wallet_agree, password) "

@@ -37,12 +37,11 @@ public class AccountService {
 	 * @return nickname
 	 * */
 	public Mono<ResponseDto> getNicknameByWallet(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> 
-			 accountRepo.findNicknameByWallet(data.getFirst("wallet").toLowerCase())
-				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
-				.defaultIfEmpty(ResponseDto.builder().result(-2).build())
-		).onErrorReturn(ResponseDto.builder().result(-1).build());
+		return accountRepo.findNicknameByWallet(serverRequest.queryParam("wallet").get().toLowerCase())
+			.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
+			.defaultIfEmpty(ResponseDto.builder().result(-2).build())
+			.onErrorReturn(ResponseDto.builder().result(-1).build());
+		
 	}
 	
 //	/**
@@ -65,13 +64,27 @@ public class AccountService {
 	 * */
 	public Mono<ServerResponse> login(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> 
-			 accountRepo.findByWalletAndPassword(data.getFirst("wallet").toLowerCase(), cryptoUtil.encodeSHA512(data.getFirst("password")))
-				.flatMap(account -> ok()
-					.contentType(MediaType.APPLICATION_JSON)
-					.header("Authorization", cryptoUtil.getToken(UUID.randomUUID() + "_"+ account.getAccountId() + "_" + serverRequest.hashCode()))
-					.body(ResponseDto.builder().result(1).data(account).build(), ResponseDto.class)
-				));
+		return formDataReqMono.flatMap(data -> {
+			return accountRepo.findByWalletAndPassword(data.getFirst("wallet").toLowerCase(), cryptoUtil.encodeSHA512(data.getFirst("password")))
+					.defaultIfEmpty(AccountEntity.builder().build())
+					.flatMap(account -> ok()
+							.contentType(MediaType.APPLICATION_JSON)
+							.header("Authorization", cryptoUtil.getToken(UUID.randomUUID() + "_"+ account.getAccountId() + "_" + serverRequest.hashCode()))
+							.body(Mono.just(ResponseDto.builder().result(1).data(account).build()), ResponseDto.class)
+					).onErrorResume(e -> ok()
+							.contentType(MediaType.APPLICATION_JSON)
+							.body(Mono.just(ResponseDto.builder().result(-1).build()), ResponseDto.class));
+		});
+	}
+	/**
+	 * @param wallet
+	 * @return count
+	 * */
+	public Mono<ResponseDto> getCountByWallet(ServerRequest serverRequest) {
+		return accountRepo.countByWallet(serverRequest.queryParam("wallet").get().toLowerCase())
+				.flatMap(cnt -> Mono.just(ResponseDto.builder().result(1).data(cnt).build()))
+				.onErrorReturn(ResponseDto.builder().result(-1).build());
+		
 	}
 	
 	public Mono<ServerResponse> refresh(ServerRequest serverRequest) {
@@ -104,12 +117,24 @@ public class AccountService {
 	 * @return count
 	 * */
 	public Mono<ResponseDto> getCntByNickname(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> 
-			 accountRepo.countByNickname(data.getFirst("nickname"))
-				.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
-		).onErrorReturn(ResponseDto.builder().result(-1).build());
+		return accountRepo.countByNickname(serverRequest.queryParam("nickname").get().toLowerCase())
+			.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
+			.onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
+	
+	/**
+	 * @param accountId
+	 * @param auth
+	 * @param nickname
+	 * @param wallet
+	 * @return count
+	 * */
+	public Mono<ResponseDto> getCntByUserInfo(ServerRequest serverRequest) {
+		return accountRepo.countByAccountIdAndAuthAndNicknameAndWallet(Long.parseLong(serverRequest.headers().firstHeader("accountId")), serverRequest.queryParam("auth").get(), serverRequest.queryParam("nickname").get(), serverRequest.queryParam("wallet").get().toLowerCase())
+			.flatMap(account -> Mono.just(ResponseDto.builder().result(1).data(account).build()))
+			.onErrorReturn(ResponseDto.builder().result(-1).build());
+	}
+	
 	/**
 	 * @param auth
 	 * @param nickname
