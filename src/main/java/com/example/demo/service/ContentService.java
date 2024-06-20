@@ -87,16 +87,16 @@ public class ContentService {
 							.build())
 						.result(1).build()));
 			} else if("title".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubTypeAndTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title")))
+				return Mono.zip(contentRepo.findContentsByTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"), data.getFirst("titleEng"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+						, contentRepo.countByTypeAndSubTypeAndTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"), data.getFirst("titleEng")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
 							.maxPage(getMaxPage(tuple.getT2(),pageSize))
 							.build())
 						.result(1).build()));
 			} else if("content".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubTypeAndContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content")))
+				return Mono.zip(contentRepo.findContentsByContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"), data.getFirst("contentEng"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+						, contentRepo.countByTypeAndSubTypeAndContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"), data.getFirst("contentEng")))
 					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 							.contents(tuple.getT1())
 							.maxPage(getMaxPage(tuple.getT2(),pageSize))

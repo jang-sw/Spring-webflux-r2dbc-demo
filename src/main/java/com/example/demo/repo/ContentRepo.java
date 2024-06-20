@@ -117,7 +117,8 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ "")
 		public Flux<ContentEntity> findContentsByAuthor(@Param("type")String type, @Param("subType")String subType, @Param("author")String author,  @Param("limit")int limit, @Param("offset")int offset);
 
-		public Mono<Long> countByTypeAndSubTypeAndAuthor(String type, String subType, String author);
+		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND author like concat('%', :author, '%') ")
+		public Mono<Long> countByTypeAndSubTypeAndAuthor(@Param("type")String type, @Param("subType")String subType, @Param("author")String author);
 		
 		@Query(""
 				+ "SELECT "
@@ -136,13 +137,14 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ 	"GROUP BY content_id) tv ON tc.content_id = tv.content_id "
 				+ "WHERE "
 				+ 	"tc.type = :type AND tc.sub_type=:subType "
-				+ 	"AND tc.title like concat('%', :title, '%') "
+				+ 	"AND (tc.title like concat('%', :title, '%') OR tc.title_eng like concat('%', :titleEng, '%') )"
 				+ "ORDER BY content_id DESC  "
 				+ "LIMIT :limit OFFSET :offset "
 				+ "")
-		public Flux<ContentEntity> findContentsByTitle(@Param("type")String type, @Param("subType")String subType, @Param("title")String title,  @Param("limit")int limit, @Param("offset")int offset);
+		public Flux<ContentEntity> findContentsByTitle(@Param("type")String type, @Param("subType")String subType, @Param("title")String title, @Param("titleEng")String titleEng,  @Param("limit")int limit, @Param("offset")int offset);
 
-		public Mono<Long> countByTypeAndSubTypeAndTitle(String type, String subType, String title);
+		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND (title like concat('%', :title, '%') OR title_eng like concat('%', :titleEng, '%'))")
+		public Mono<Long> countByTypeAndSubTypeAndTitle(@Param("type")String type, @Param("subType")String subType, @Param("title")String title, @Param("titleEng")String titleEng);
 
 		@Query(""
 				+ "SELECT "
@@ -161,23 +163,27 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ 	"GROUP BY content_id) tv ON tc.content_id = tv.content_id "
 				+ "WHERE "
 				+ 	"tc.type = :type AND tc.sub_type=:subType "
-				+ 	"AND tc.content like concat('%', :content, '%') "
+				+ 	"AND (tc.content like concat('%', :content, '%') OR tc.contentEng like concat('%', :contentEng, '%')) "
 				+ "ORDER BY content_id DESC  "
 				+ "LIMIT :limit OFFSET :offset "
 				+ "")
-		public Flux<ContentEntity> findContentsByContent(@Param("type")String type, @Param("subType")String subType, @Param("content")String content,  @Param("limit")int limit, @Param("offset")int offset);
+		public Flux<ContentEntity> findContentsByContent(@Param("type")String type, @Param("subType")String subType, @Param("content")String content, @Param("contentEng")String contentEng,  @Param("limit")int limit, @Param("offset")int offset);
 
-		public Mono<Long> countByTypeAndSubTypeAndContent(String type, String subType, String content);
+		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND (content like concat('%', :content, '%') OR content_eng like concat('%', :contentEng, '%'))")
+		public Mono<Long> countByTypeAndSubTypeAndContent(@Param("type")String type, @Param("subType")String subType, @Param("content")String content, @Param("contentEng")String contentEng);
 		
 		@Query(""
-				+ "INSERT INTO tb_content(account_id, author, title, content, type, sub_type) "
-				+ "VALUES(:#{#contentEntity.accountId},:#{#contentEntity.author},:#{#contentEntity.title},:#{#contentEntity.content},:#{#contentEntity.type},:#{#contentEntity.subType})")
+				+ "INSERT INTO tb_content(account_id, author, title, title_eng, content, content_ori, content_eng, type, sub_type) "
+				+ "VALUES(:#{#contentEntity.accountId},:#{#contentEntity.author},:#{#contentEntity.title},:#{#contentEntity.titleEng},:#{#contentEntity.content},:#{#contentEntity.contentOri},:#{#contentEntity.contentEng},:#{#contentEntity.type},:#{#contentEntity.subType})")
 		public Mono<Void> saveContent(@Param("contentEntity") ContentEntity contentEntity);
 		
 		@Query(""
 				+ "UPDATE tb_content "
 				+ "SET title=:title "
+				+ ", title_eng=:titleEng "
 				+ ", content=:content "
+				+ ", content_ori=:contentOri "
+				+ ", content_eng=:contentEng "
 				+ ", updated=now() "
 				+ "WHERE content_id=:contentId "
 				+ "AND account_id=:accountId ")

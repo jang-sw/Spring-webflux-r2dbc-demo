@@ -32,7 +32,10 @@ public class ContentEntity {
 	
 	String author;
 	String title;
+	String titleEng;
 	String content;
+	String contentOri;
+	String contentEng;
 	String type;
 	String subType;
 	
