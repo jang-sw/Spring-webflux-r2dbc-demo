@@ -14,6 +14,7 @@ import com.example.demo.entity.ContentEntity;
 import com.example.demo.repo.ContentRepo;
 import com.example.demo.repo.LikeRepo;
 import com.example.demo.repo.ViewRepo;
+import com.example.demo.util.TranslateUtil;
 
 import reactor.core.publisher.Mono;
 
@@ -26,6 +27,8 @@ public class ContentService {
 	LikeRepo likeRepo;
 	@Autowired
 	ViewRepo viewRepo;
+	@Autowired
+	TranslateUtil translateUtil;
 	
 	private long getMaxPage(long dataSize, long pageSize) {
 		long maxPages = dataSize / pageSize;
@@ -148,9 +151,10 @@ public class ContentService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
-	 * @param author
+	 * @param nickname
 	 * @param accountId
 	 * @param title
+	 * @param contentOri
 	 * @param content
 	 * @param type
 	 * @param subType
@@ -159,10 +163,13 @@ public class ContentService {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data ->
 			contentRepo.saveContent(ContentEntity.builder()
-				.author(data.getFirst("author"))
+				.author(data.getFirst("nickname"))
 				.accountId(Long.parseLong(serverRequest.headers().firstHeader("accountId")))
 				.title(data.getFirst("title"))
+				.titleEng(translateUtil.translateToEng(data.getFirst("title")))
 				.content(data.getFirst("content"))
+				.contentOri(data.getFirst("contentOri"))
+				.contentEng(translateUtil.translateToEng(data.getFirst("content")))
 				.type(data.getFirst("type"))
 				.subType(data.getFirst("subType"))
 				.build())
