@@ -26,10 +26,10 @@ public class ContentRouter {
         return RouterFunctions. 
                 route(GET("/openApi/content/list").and(contentType(MediaType.ALL)).and(accept(MediaType.ALL))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContentList(request), ResponseDto.class))
-                .andRoute(GET("/api/content/detail").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
+//                .andRoute(GET("/api/content/detail").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
+//                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 .andRoute(GET("/openApi/content/detail").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
-                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getOpenContent(request), ResponseDto.class))
+                        , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.getContent(request), ResponseDto.class))
                 .andRoute(POST("/api/content/create").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))
                         , request -> ok().contentType(MediaType.APPLICATION_JSON).body(contentService.saveContent(request), ResponseDto.class))
                 .andRoute(POST("/api/content/delete").and(accept(MediaType.ALL).and(contentType(MediaType.ALL)))

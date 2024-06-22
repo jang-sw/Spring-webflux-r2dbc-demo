@@ -44,14 +44,12 @@ public class ContentService {
 	 * @return content
 	 * */
 	public Mono<ResponseDto> getContent(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> 
-			(serverRequest.headers().firstHeader("accountId") == null ? contentRepo.findContentById(Long.parseLong(data.getFirst("contentId"))) : contentRepo.findContentByIdAndAccountId(Long.parseLong(data.getFirst("contentId")),Long.parseLong(serverRequest.headers().firstHeader("accountId"))))
-				.flatMap(content -> serverRequest.headers().firstHeader("accountId") == null ? 
-					Mono.just(ResponseDto.builder().result(1).data(content).build()) 
-					: viewRepo.save(Long.parseLong(serverRequest.headers().firstHeader("accountId")),Long.parseLong(data.getFirst("contentId"))).thenReturn(ResponseDto.builder().result(1).data(content).build())
-				).defaultIfEmpty(ResponseDto.builder().result(1).build())
-		).onErrorReturn(ResponseDto.builder().result(-1).build());
+		return (serverRequest.headers().firstHeader("accountId") == null ? contentRepo.findContentById(Long.parseLong(serverRequest.queryParam("contentId").get())) : contentRepo.findContentByIdAndAccountId(Long.parseLong(serverRequest.queryParam("contentId").get()),Long.parseLong(serverRequest.headers().firstHeader("accountId"))))
+		.flatMap(content -> serverRequest.headers().firstHeader("accountId") == null ? 
+			Mono.just(ResponseDto.builder().result(1).data(content).build()) 
+			: viewRepo.save(Long.parseLong(serverRequest.headers().firstHeader("accountId")),Long.parseLong(serverRequest.queryParam("contentId").get())).thenReturn(ResponseDto.builder().result(1).data(content).build())
+		).defaultIfEmpty(ResponseDto.builder().result(1).build())
+		.onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
 	 * @param contentId
@@ -77,44 +75,41 @@ public class ContentService {
 	 * @return contentList
 	 * */
 	public Mono<ResponseDto> getContentList(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> {
-			Integer pageSize = 10;
-			Integer page = Integer.parseInt(data.getFirst("page"));
-			if("author".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubTypeAndAuthor(data.getFirst("type"), data.getFirst("subType"), data.getFirst("author")))
-					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
-							.contents(tuple.getT1())
-							.maxPage(getMaxPage(tuple.getT2(),pageSize))
-							.build())
-						.result(1).build()));
-			} else if("title".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"), data.getFirst("titleEng"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubTypeAndTitle(data.getFirst("type"), data.getFirst("subType"), data.getFirst("title"), data.getFirst("titleEng")))
-					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
-							.contents(tuple.getT1())
-							.maxPage(getMaxPage(tuple.getT2(),pageSize))
-							.build())
-						.result(1).build()));
-			} else if("content".equals(data.getFirst("select"))) {
-				return Mono.zip(contentRepo.findContentsByContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"), data.getFirst("contentEng"), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubTypeAndContent(data.getFirst("type"), data.getFirst("subType"), data.getFirst("content"), data.getFirst("contentEng")))
-					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
-							.contents(tuple.getT1())
-							.maxPage(getMaxPage(tuple.getT2(),pageSize))
-							.build())
-						.result(1).build()));
-			} else {
-				return Mono.zip(contentRepo.findContents(data.getFirst("type"), data.getFirst("subType"),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-						, contentRepo.countByTypeAndSubType(data.getFirst("type"), data.getFirst("subType")))
-					.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
-							.contents(tuple.getT1())
-							.maxPage(getMaxPage(tuple.getT2(),pageSize))
-							.build())
-						.result(1).build()));
-			}
-		}).onErrorReturn(ResponseDto.builder().result(-1).build());
+		Integer pageSize = 10;
+		Integer page = Integer.parseInt(serverRequest.queryParam("page").get());
+		if("author".equals(serverRequest.queryParam("select").get())) {
+			return Mono.zip(contentRepo.findContentsByAuthor(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("author").get(),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+					, contentRepo.countByTypeAndSubTypeAndAuthor(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("author").get()))
+				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
+						.contents(tuple.getT1())
+						.maxPage(getMaxPage(tuple.getT2(),pageSize))
+						.build())
+					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
+		} else if("title".equals(serverRequest.queryParam("select").get())) {
+			return Mono.zip(contentRepo.findContentsByTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), serverRequest.queryParam("titleEng").get(),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+					, contentRepo.countByTypeAndSubTypeAndTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), serverRequest.queryParam("titleEng").get()))
+				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
+						.contents(tuple.getT1())
+						.maxPage(getMaxPage(tuple.getT2(),pageSize))
+						.build())
+					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
+		} else if("content".equals(serverRequest.queryParam("select").get())) {
+			return Mono.zip(contentRepo.findContentsByContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), serverRequest.queryParam("contentEng").get(), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+					, contentRepo.countByTypeAndSubTypeAndContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), serverRequest.queryParam("contentEng").get()))
+				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
+						.contents(tuple.getT1())
+						.maxPage(getMaxPage(tuple.getT2(),pageSize))
+						.build())
+					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
+		} else {
+			return Mono.zip(contentRepo.findContents(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+					, contentRepo.countByTypeAndSubType(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get()))
+				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
+						.contents(tuple.getT1())
+						.maxPage(getMaxPage(tuple.getT2(),pageSize))
+						.build())
+					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
+		}
 	}
 	
 	/**

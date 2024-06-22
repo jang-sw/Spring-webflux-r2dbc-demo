@@ -32,12 +32,10 @@ public class CommentService {
 	 * @return comments
 	 * */
 	public Mono<ResponseDto> getComments(ServerRequest serverRequest) {
-		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
-		return formDataReqMono.flatMap(data -> 
-			commentRepo.findByContentId(Long.parseLong(data.getFirst("contentId")))
+		return commentRepo.findByContentId(Long.parseLong(serverRequest.queryParam("contentId").get()))
 				.collectList()
 				.defaultIfEmpty(Collections.emptyList())
-				.flatMap(comments -> Mono.just(ResponseDto.builder().result(1).data(comments).build()))
+				.flatMap(comments -> Mono.just(ResponseDto.builder().result(1).data(comments).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
