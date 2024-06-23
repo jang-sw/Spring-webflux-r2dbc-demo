@@ -15,7 +15,7 @@ public class HeaderFilter implements WebFilter {
 	
 	
 	private boolean chkBrowser(String userAgent) {
-		return userAgent.indexOf("Trident") > -1 || userAgent.indexOf("Edge") > -1 || userAgent.indexOf("Whale") > -1
+		return userAgent.indexOf("MetaMaskMobile") > -1 || userAgent.indexOf("Trident") > -1 || userAgent.indexOf("Edge") > -1 || userAgent.indexOf("Whale") > -1
 				|| userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1 || userAgent.indexOf("Firefox") > -1
 				|| (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") == -1)
 				|| (userAgent.indexOf("Chrome") > -1);

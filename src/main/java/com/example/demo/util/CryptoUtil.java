@@ -86,7 +86,7 @@ public class CryptoUtil {
 		return "Bearer " + Jwts.builder()
 			.setClaims(jti)
 	        .setSubject(subject)
-	        .setExpiration(new Date(System.currentTimeMillis() + 1800000))
+	        .setExpiration(new Date(System.currentTimeMillis() + 1800000)) 
 	        .signWith(SignatureAlgorithm.HS512, Constant.SECRET_KEY)
 	        .compact();
 	}

@@ -1,6 +1,12 @@
 package com.example.demo.service;
 
 
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+
+import java.util.Date;
+import java.util.UUID;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -15,14 +21,10 @@ import com.example.demo.repo.AccountRepo;
 import com.example.demo.util.CryptoUtil;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Clock;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.impl.DefaultClock;
 import reactor.core.publisher.Mono;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-
-import java.util.Date;
-import java.util.UUID;
 @Service
 public class AccountService {
 
@@ -91,19 +93,32 @@ public class AccountService {
 		try {
 			String authToken = serverRequest.headers().firstHeader("Authorization").substring(7);
 			String accountId = serverRequest.headers().firstHeader("accountId");
-			Claims claims = Jwts.parser()
-	                 .setSigningKey(Constant.SECRET_KEY)
-	                 .parseClaimsJws(authToken)
-	                 .getBody();
+//			Claims claims = Jwts.parser()
+//	                 .setSigningKey(Constant.SECRET_KEY)
+//	                 .parseClaimsJws(authToken)
+//	                 .getBody();
+			Clock clock = new DefaultClock() {
+                @Override
+                public java.util.Date now() {
+                    return new java.util.Date(0);
+                }
+            };
+	
+            Claims claims = Jwts.parser()
+                                .setSigningKey(Constant.SECRET_KEY)
+                                .setClock(clock)  
+                                .parseClaimsJws(authToken)
+                                .getBody();
+			
 	        String id = claims.getSubject();
 	        String d = cryptoUtil.AESDecrypt((String) claims.get("d"));
-	        if(id != null && accountId.equals(d.split("_")[1]) && ((new Date().getTime() - claims.getExpiration().getTime()) / 60000) <= 5) {
+	        
+	        if(id != null && accountId.equals(d.split("_")[1]) && ((new Date().getTime() - claims.getExpiration().getTime()) / (60000 * 1440)) <= 1) {
 	        	return ok()
 					.contentType(MediaType.APPLICATION_JSON)
 					.header("Authorization", cryptoUtil.getToken(UUID.randomUUID() + "_"+ accountId + "_" + serverRequest.hashCode()))
-					.body(ResponseDto.builder().result(1).data(accountId).build(), ResponseDto.class);
-	     
-	        }
+					.body(Mono.just(ResponseDto.builder().result(1).data(accountId).build()), ResponseDto.class);
+	        } 
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -148,7 +163,7 @@ public class AccountService {
 			accountRepo.saveAccount(AccountEntity.builder()
 					.password(cryptoUtil.encodeSHA512(data.getFirst("password")))
 					.auth("user")
-					.nickname(data.getFirst("nickname"))
+					.nickname(StringEscapeUtils.escapeHtml4(data.getFirst("nickname")))
 					.wallet(data.getFirst("wallet").toLowerCase())
 					.walletAgree(data.getFirst("walletAgree"))
 					.build())

@@ -123,7 +123,7 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ 	"tb_content tc "
 				+ "WHERE "
 				+ 	"tc.type = :type AND tc.sub_type=:subType "
-				+ 	"AND (tc.content like concat('%', :content, '%') OR tc.contentEng like concat('%', :contentEng, '%')) "
+				+ 	"AND (tc.content like concat('%', :content, '%') OR tc.content_eng like concat('%', :contentEng, '%')) "
 				+ "ORDER BY content_id DESC  "
 				+ "LIMIT :limit OFFSET :offset "
 				+ "")
@@ -147,7 +147,7 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ ", updated=now() "
 				+ "WHERE content_id=:contentId "
 				+ "AND account_id=:accountId ")
-		public Mono<Void> updateContent(@Param("title") String title, @Param("content") String content, @Param("contentId") Long contentId, @Param("accountId") Long accountId);
+		public Mono<Void> updateContent(@Param("title") String title, @Param("titleEng") String titleEng, @Param("content") String content, @Param("contentOri") String contentOri, @Param("contentEng") String contentEng, @Param("contentId") Long contentId, @Param("accountId") Long accountId);
 
 		@Query(""
 				+ "DELETE FROM tb_content WHERE account_id=:accountId AND content_id=:contentId")

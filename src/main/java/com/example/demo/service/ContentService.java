@@ -3,6 +3,7 @@ package com.example.demo.service;
 
 import java.util.Collections;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -86,16 +87,18 @@ public class ContentService {
 						.build())
 					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
 		} else if("title".equals(serverRequest.queryParam("select").get())) {
-			return Mono.zip(contentRepo.findContentsByTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), serverRequest.queryParam("titleEng").get(),  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-					, contentRepo.countByTypeAndSubTypeAndTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), serverRequest.queryParam("titleEng").get()))
+			String titleEng = translateUtil.translateToEng(serverRequest.queryParam("title").get());
+			return Mono.zip(contentRepo.findContentsByTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), titleEng,  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+					, contentRepo.countByTypeAndSubTypeAndTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), titleEng))
 				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 						.contents(tuple.getT1())
 						.maxPage(getMaxPage(tuple.getT2(),pageSize))
 						.build())
 					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
 		} else if("content".equals(serverRequest.queryParam("select").get())) {
-			return Mono.zip(contentRepo.findContentsByContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), serverRequest.queryParam("contentEng").get(), pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
-					, contentRepo.countByTypeAndSubTypeAndContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), serverRequest.queryParam("contentEng").get()))
+			String contentEng = translateUtil.translateToEng(serverRequest.queryParam("content").get());
+			return Mono.zip(contentRepo.findContentsByContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), contentEng, pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
+					, contentRepo.countByTypeAndSubTypeAndContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), contentEng))
 				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
 						.contents(tuple.getT1())
 						.maxPage(getMaxPage(tuple.getT2(),pageSize))
@@ -160,8 +163,8 @@ public class ContentService {
 			contentRepo.saveContent(ContentEntity.builder()
 				.author(data.getFirst("nickname"))
 				.accountId(Long.parseLong(serverRequest.headers().firstHeader("accountId")))
-				.title(data.getFirst("title"))
-				.titleEng(translateUtil.translateToEng(data.getFirst("title")))
+				.title(StringEscapeUtils.escapeHtml4(data.getFirst("title")))	
+				.titleEng(StringEscapeUtils.escapeHtml4(translateUtil.translateToEng(data.getFirst("title"))))
 				.content(data.getFirst("content"))
 				.contentOri(data.getFirst("contentOri"))
 				.contentEng(translateUtil.translateToEng(data.getFirst("content")))
@@ -174,12 +177,13 @@ public class ContentService {
 	/**
 	 * @param title
 	 * @param content
+	 * @param contentOri
 	 * @param contentId
 	 * */
 	public Mono<ResponseDto> updateContent(ServerRequest serverRequest) {
 		Mono<MultiValueMap<String, String>> formDataReqMono = serverRequest.formData();
 		return formDataReqMono.flatMap(data -> 
-			contentRepo.updateContent(data.getFirst("title") ,data.getFirst("content"), Long.parseLong(data.getFirst("contentId")), Long.parseLong(serverRequest.headers().firstHeader("accountId")))
+			contentRepo.updateContent(data.getFirst("title") ,translateUtil.translateToEng(data.getFirst("title")), data.getFirst("content"), data.getFirst("contentOri"), translateUtil.translateToEng(data.getFirst("content")), Long.parseLong(data.getFirst("contentId")), Long.parseLong(serverRequest.headers().firstHeader("accountId")))
 				.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}

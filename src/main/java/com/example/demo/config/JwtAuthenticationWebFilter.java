@@ -37,6 +37,7 @@ public class JwtAuthenticationWebFilter extends AuthenticationWebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
     	String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+    	if("/openApi/account/refresh".equals(exchange.getRequest().getPath().toString())) return chain.filter(exchange);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String authToken = authHeader.substring(7);
             try {

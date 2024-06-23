@@ -3,6 +3,7 @@ package com.example.demo.service;
 
 import java.util.Collections;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -61,7 +62,7 @@ public class CommentService {
 				.accountId(Long.parseLong(serverRequest.headers().firstHeader("accountId")))
 				.contentId(Long.parseLong(data.getFirst("contentId")))
 				.nickname(data.getFirst("nickname"))
-				.comment(data.getFirst("comment"))
+				.comment(StringEscapeUtils.escapeHtml4(data.getFirst("comment")))
 				.build())
 			.thenReturn(ResponseDto.builder().result(1).build())
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
