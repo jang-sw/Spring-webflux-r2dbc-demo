@@ -107,13 +107,13 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ 	"tb_content tc "
 				+ "WHERE "
 				+ 	"tc.type = :type AND tc.sub_type=:subType "
-				+ 	"AND (tc.title like concat('%', :title, '%') OR tc.title_eng like concat('%', :titleEng, '%') )"
+				+ 	"AND (tc.title like concat('%', :title, '%') OR LOWER(tc.title_eng) like concat('%', :titleEng, '%') )"
 				+ "ORDER BY content_id DESC  "
 				+ "LIMIT :limit OFFSET :offset "
 				+ "")
 		public Flux<ContentEntity> findContentsByTitle(@Param("type")String type, @Param("subType")String subType, @Param("title")String title, @Param("titleEng")String titleEng,  @Param("limit")int limit, @Param("offset")int offset);
 
-		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND (title like concat('%', :title, '%') OR title_eng like concat('%', :titleEng, '%'))")
+		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND (title like concat('%', :title, '%') OR LOWER(title_eng) like concat('%', :titleEng, '%'))")
 		public Mono<Long> countByTypeAndSubTypeAndTitle(@Param("type")String type, @Param("subType")String subType, @Param("title")String title, @Param("titleEng")String titleEng);
 
 		@Query(""
@@ -123,13 +123,13 @@ public interface ContentRepo extends R2dbcRepository<ContentEntity, Long>{
 				+ 	"tb_content tc "
 				+ "WHERE "
 				+ 	"tc.type = :type AND tc.sub_type=:subType "
-				+ 	"AND (tc.content like concat('%', :content, '%') OR tc.content_eng like concat('%', :contentEng, '%')) "
+				+ 	"AND (tc.content like concat('%', :content, '%') OR LOWER(tc.content_eng) like concat('%', :contentEng, '%')) "
 				+ "ORDER BY content_id DESC  "
 				+ "LIMIT :limit OFFSET :offset "
 				+ "")
 		public Flux<ContentEntity> findContentsByContent(@Param("type")String type, @Param("subType")String subType, @Param("content")String content, @Param("contentEng")String contentEng,  @Param("limit")int limit, @Param("offset")int offset);
 
-		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND (content like concat('%', :content, '%') OR content_eng like concat('%', :contentEng, '%'))")
+		@Query("SELECT count(*) FROM tb_content WHERE type=:type AND sub_type=:subType AND (content like concat('%', :content, '%') OR LOWER(content_eng) like concat('%', :contentEng, '%'))")
 		public Mono<Long> countByTypeAndSubTypeAndContent(@Param("type")String type, @Param("subType")String subType, @Param("content")String content, @Param("contentEng")String contentEng);
 		
 		@Query(""

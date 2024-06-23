@@ -87,7 +87,7 @@ public class ContentService {
 						.build())
 					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
 		} else if("title".equals(serverRequest.queryParam("select").get())) {
-			String titleEng = translateUtil.translateToEng(serverRequest.queryParam("title").get());
+			String titleEng = translateUtil.translateToEng(serverRequest.queryParam("title").get()).toLowerCase();
 			return Mono.zip(contentRepo.findContentsByTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), titleEng,  pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 					, contentRepo.countByTypeAndSubTypeAndTitle(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("title").get(), titleEng))
 				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
@@ -96,7 +96,7 @@ public class ContentService {
 						.build())
 					.result(1).build())).onErrorReturn(ResponseDto.builder().result(-1).build());
 		} else if("content".equals(serverRequest.queryParam("select").get())) {
-			String contentEng = translateUtil.translateToEng(serverRequest.queryParam("content").get());
+			String contentEng = translateUtil.translateToEng(serverRequest.queryParam("content").get()).toLowerCase();
 			return Mono.zip(contentRepo.findContentsByContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), contentEng, pageSize, (page - 1) * pageSize).collectList().defaultIfEmpty(Collections.emptyList())
 					, contentRepo.countByTypeAndSubTypeAndContent(serverRequest.queryParam("type").get(), serverRequest.queryParam("subType").get(), serverRequest.queryParam("content").get(), contentEng))
 				.flatMap(tuple -> Mono.just(ResponseDto.builder().data(ContentDto.ContentList.builder()
