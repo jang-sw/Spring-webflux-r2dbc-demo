@@ -9,14 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
-import com.example.demo.dto.ContentDto;
 import com.example.demo.dto.ResponseDto;
 import com.example.demo.entity.CommentEntity;
-import com.example.demo.entity.ContentEntity;
 import com.example.demo.repo.CommentRepo;
 import com.example.demo.repo.ContentRepo;
-import com.example.demo.repo.LikeRepo;
-import com.example.demo.repo.ViewRepo;
 
 import reactor.core.publisher.Mono;
 
