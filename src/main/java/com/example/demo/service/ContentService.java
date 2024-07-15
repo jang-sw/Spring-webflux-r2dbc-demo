@@ -30,7 +30,12 @@ public class ContentService {
 	ViewRepo viewRepo;
 	@Autowired
 	TranslateUtil translateUtil;
-	
+	/**
+	 * 최대 패이지 계산 함수
+	 * 
+	 * @param
+	 * @return 최대 페이지
+	 * */
 	private long getMaxPage(long dataSize, long pageSize) {
 		long maxPages = dataSize / pageSize;
         if (dataSize % pageSize != 0 || maxPages == 0) {
@@ -40,6 +45,8 @@ public class ContentService {
     }
 	
 	/**
+	 * 컨텐츠 불러오기
+	 * 
 	 * @param contentId
 	 * @param accountId 현재 유저ID (선택)
 	 * @return content
@@ -53,6 +60,8 @@ public class ContentService {
 		.onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 자유게시판용 컨텐츠 불러오기
+	 * 
 	 * @param contentId
 	 * @param accountId 현재 유저ID (선택)
 	 * @return content
@@ -66,6 +75,8 @@ public class ContentService {
 		}).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 컨텐츠 목록 불러오기
+	 * 
 	 * @param page
 	 * @param type 
 	 * @param subType 
@@ -116,6 +127,8 @@ public class ContentService {
 	}
 	
 	/**
+	 * 컨텐츠 제거
+	 * 
 	 * @param contentId
 	 * */
 	public Mono<ResponseDto> deleteContent(ServerRequest serverRequest) {
@@ -127,6 +140,8 @@ public class ContentService {
 	}
 	
 	/**
+	 * 좋아요 취소
+	 * 
 	 * @param accountId
 	 * @param contentId
 	 * */
@@ -138,6 +153,8 @@ public class ContentService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 좋아요 등록
+	 * 
 	 * @param accountId
 	 * @param contentId
 	 * */
@@ -149,6 +166,8 @@ public class ContentService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 컨텐츠 등록
+	 * 
 	 * @param nickname
 	 * @param accountId
 	 * @param title
@@ -175,6 +194,8 @@ public class ContentService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 컨텐츠 업데이트
+	 * 
 	 * @param title
 	 * @param content
 	 * @param contentOri

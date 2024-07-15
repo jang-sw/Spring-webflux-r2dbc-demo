@@ -73,6 +73,12 @@ public class CryptoUtil {
 		}
 	}
     
+    /**
+     * key 를 인증 수단으로 JWT 생성
+     * 
+     * @param
+     * @return 토큰
+     * */
     public String getToken(String key) {
 		String subject = UUID.randomUUID().toString();
 		Map< String, Object> jti = new HashMap<>();

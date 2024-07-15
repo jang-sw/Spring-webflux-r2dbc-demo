@@ -25,6 +25,8 @@ public class CommentService {
 	CommentRepo commentRepo;
 	
 	/**
+	 * 댓글 목록 불러오기
+	 * 
 	 * @param contentId
 	 * @return comments
 	 * */
@@ -36,6 +38,8 @@ public class CommentService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 댓글 삭제
+	 * 
 	 * @param commentId
 	 * */
 	public Mono<ResponseDto> deleteComment(ServerRequest serverRequest) {
@@ -46,6 +50,8 @@ public class CommentService {
 		).onErrorReturn(ResponseDto.builder().result(-1).build());
 	}
 	/**
+	 * 댓글 저장
+	 * 
 	 * @param accountId
 	 * @param contentId
 	 * @param nickname

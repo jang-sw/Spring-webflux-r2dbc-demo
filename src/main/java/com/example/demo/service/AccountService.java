@@ -35,6 +35,8 @@ public class AccountService {
 	
 
 	/**
+	 * 지갑주소로 가입된 계정 닉네임 불러오기
+	 * 
 	 * @param wallet
 	 * @return nickname
 	 * */
@@ -60,6 +62,8 @@ public class AccountService {
 //		).onErrorReturn(ResponseDto.builder().result(-1).build());
 //	}
 	/**
+	 * 로그인 인증
+	 * 
 	 * @param wallet
 	 * @param password
 	 * @return account
@@ -79,6 +83,8 @@ public class AccountService {
 		});
 	}
 	/**
+	 * 지갑으로 가입된 계정 확인
+	 * 
 	 * @param wallet
 	 * @return count
 	 * */
@@ -88,7 +94,11 @@ public class AccountService {
 				.onErrorReturn(ResponseDto.builder().result(-1).build());
 		
 	}
-	
+	/**
+	 * 토큰 리프레시
+	 * @param 
+	 * @return 신규 토큰을 담은 응답
+	 * */
 	public Mono<ServerResponse> refresh(ServerRequest serverRequest) {
 		try {
 			String authToken = serverRequest.headers().firstHeader("Authorization").substring(7);
@@ -128,6 +138,8 @@ public class AccountService {
 
 	}
 	/**
+	 * 등록된 닉네임 체크
+	 * 
 	 * @param nickname
 	 * @return count
 	 * */
@@ -138,6 +150,9 @@ public class AccountService {
 	}
 	
 	/**
+	 * 
+	 * 유저 정보가 올바른지 확인을 위한 유저 cnt
+	 * 
 	 * @param accountId
 	 * @param auth
 	 * @param nickname
@@ -151,6 +166,8 @@ public class AccountService {
 	}
 	
 	/**
+	 * 유저 정보 저장
+	 * 
 	 * @param auth
 	 * @param nickname
 	 * @param wallet
