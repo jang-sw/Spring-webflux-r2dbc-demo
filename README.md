@@ -2,7 +2,7 @@
 
 A webflux & r2dbc demo backend application designed with the multilingual web3 community in mind
 
-多言語 web3コミュニティを念頭に置いて制作したwebflux & r2dbcデモbackendアプリケーション
+多言語web3コミュニティを念頭に置いて制作したwebflux & r2dbcデモbackendアプリケーション
 
 ![image](https://github.com/jang-sw/Spring-webflux-r2dbc-demo/assets/113086375/c26345d8-8f51-4e7e-a479-63cd35212a9a)
 
